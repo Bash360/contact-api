@@ -9,11 +9,21 @@ router.get('/', function(_req, _res,_next) {
 router.get('api/users', (_req, _res,_next) => {
   _res.send(201)
 });
-router.get('api/users?id');
-router.get('api/users/blocked');
-router.post('api/users');
-router.put('api/users');
-router.delete('api/users');
+router.get('api/users?id', (_req, _res, _next) => {
+  
+});
+router.get('api/users/blocked',(_req, _res) => {
+  
+});
+router.post('api/users', (_req, _res) => {
+  
+});
+router.put('api/users',(_req, _res) => {
+  
+});
+router.delete('api/users',(_req, _res) => {
+  
+});
 
 
 export default router ;
