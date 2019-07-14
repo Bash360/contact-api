@@ -1,40 +1,72 @@
 const express = require('express');
 const joi = require('@hapi/joi');
+const {
+	createUser,
+	getUsers,
+	getUsersNotBlocked,
+	getBlockedUsers,
+	updateUser,
+	getSingleUser,
+	blockUser
+} = require('../db/connect-db.js');
+const userRouter = express.Router();
 
-const router = express.Router();
-const schema: object = {
+const postSchema = {
 	firstName: joi
 		.string()
-		.min(5)
+		.min(3)
 		.required(),
 	lastName: joi
 		.string()
-		.min(5)
+		.min(3)
 		.required(),
 	email: joi
 		.string()
 		.email()
 		.required(),
-	phone: joi.string().max(11).required,
+	phone: joi.string().max(11).required(),
 	gender: joi
 		.string()
 		.max(6)
-		.min(4).required,
-	blocked: joi
-		.number()
-		.min(0)
-		.max(1).optional
+		.min(4)
+		.required(),
+	blocked: joi.number().max(1).optional()
 };
-router.get('/', function(req, res) {
-	res.send('home').status(200);
+userRouter.get('/api/users', (req, res) => {
+  getUsers().then((data) => {  res.status(200).json(data)}).catch((error) => {  res.send(error)});
 });
-router.get('api/users', (req, res) => {
-	res.send(201);
+userRouter.get('/api/users?id', (req, res) => {
+  res.send(req);
+  // getSingleUser(req.query.id).then((data) => { res.status(200).json(data); }).catch((error) => { res.status(400).json(error) });
 });
-router.get('api/users?id', (req, res, next) => {});
-router.get('api/users/blocked', (req, res) => {});
-router.post('api/users', (req, res) => {});
-router.put('api/users', (req, res) => {});
-router.delete('api/users', (req, res) => {});
+userRouter.get('/api/users/blocked', (req, res) => {
+	res.send('welcome');
+});
+userRouter.post('/api/users', (req, res) => {
+	const validated = joi.validate(req.body, postSchema, { abortEarly: false });
+	const { error } = validated;
+	if (error) {
+		let errors = error.details.reduce((errors, error) => {
+			return errors + ' \n' + error.message;
+		}, ' ');
+		res.status(400).send(errors);
+	} else {
+		let { firstName, lastName, gender, phone, email } = req.body;
 
-module.exports = router;
+		createUser(firstName, lastName, phone, gender, email)
+			.then(dbresponse => {
+				res.status(200).json(dbresponse);
+			})
+			.catch(error => {
+				res.send(error);
+			});
+	}
+});
+userRouter.put('/api/users', (req, res) => {
+	res.send('welcome');
+});
+userRouter.delete('/api/users', (req, res) => {
+	res.send('welcome');
+});
+
+module.exports = userRouter;

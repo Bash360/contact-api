@@ -44,7 +44,7 @@ function getUsers() {
 			});
 			resolve(users);
 		} catch (error) {
-			reject(error);
+			reject(error.message);
 		}
 	});
 }
@@ -85,7 +85,7 @@ function getBlockedUsers() {
 function getSingleUser(id) {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const users = await User.find({ _id: id }).select({
+			const users = await User.find({ _id:id }).select({
 				firstName: 1,
 				lastName: 1,
 				gender: 1,
@@ -169,6 +169,5 @@ function deleteUser(id) {
 		}
 	 });
 }
-user = deleteUser('5d2b16a561d0fb28a4f181e8');
-user.then((data) => { console.log(data) }).catch((error) => { console.log(error) });
+
 module.exports = { createUser, getUsers, getUsersNotBlocked, getBlockedUsers, updateUser, getSingleUser, blockUser };
