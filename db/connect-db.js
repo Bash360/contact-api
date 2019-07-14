@@ -1,46 +1,11 @@
-const mysql = require('mysql');
-const db = mysql.createConnection({
-	host: '127.0.0.1',
-	user: 'guest',
-	password: 'password666',
-	database: 'contact'
+const mongodb = require('mongodb');
+const mongoose = require('mongoose');
+const userSchema = new mongoose.Schema({
+	firstName: { type: string, maxlenght: 20, required: true, trim: true },
+	lastName: { type: string, maxlenght: 20, required: true, trim: true },
+	phone: { type: string, lenght: 11, required: true, trim: true },
+	gender: { type: string, enum: ['male', 'female'], required: true, trim: true },
+	email: { type: string, required: true },
+	blocked: { type: Number, enum: [0, 1], required: true, default: 0 }
 });
-db.connect(error => {
-	if (error) throw error;
-	console.log('connection successful');
-});
-
-function createUser(firstName, lastName, email, phone, gender, blocked = 0) {
-	if (db) {
-		return new Promise((resolve, reject) => {
-			db.query(
-				'INSERT INTO users SET firstName=?,lastName=?,email=?,phone=?,gender=?,blocked=?',
-				[firstName, lastName, email, phone, gender, blocked],
-				(error, results) => {
-					if (error) return reject(error.message);
-					resolve({ id: results.insertId, affectedRows: results.affectedRows });
-				}
-			);
-		});
-	} else { 
-		throw new Error('cannot connect to database at the moment');
-	}
-}
-function getAllUsers(table) {
-	if (db) {
-		return new Promise((resolve, reject) => {
-			db.query('Select * from '+table,
-				(error, results) => {
-					if (error) return reject(error.message);
-					resolve({ results });
-				}
-			);
-		})
-	} else {
-		throw new Error('cannot connect to database at the moment');
-	}
-}
-function getNonBlockedUsers() { }
-function getBlockedUsers() { }
-function updateUser(id, ...rest) {}
-module.exports = { createUser,getAllUsers,getNonBlockedUsers };
+module.exports.user = mongoose.model('user', userSchema);
