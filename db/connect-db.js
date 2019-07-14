@@ -1,40 +1,35 @@
 const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
-function connectToDatabase() {
+
+mongoose
+	.connect('mongodb://localhost:27017/contact', { useNewUrlParser: true })
+	.then(() => {
+		console.log('connected to mongo db');
+	})
+	.catch(error => {
+		console.error(error.message);
+	});
+mongoose.set('useFindAndModify', false);
+const userSchema = new mongoose.Schema({
+	firstName: { type: String, maxlenght: 20, required: true, trim: true },
+	lastName: { type: String, maxlenght: 20, required: true, trim: true },
+	phone: { type: String, lenght: 11, required: true, trim: true },
+	gender: { type: String, enum: ['male', 'female'], required: true, trim: true },
+	email: { type: String, required: true },
+	blocked: { type: Boolean, enum: [true, false], required: true, default: 0 }
+});
+const User = mongoose.model('user', userSchema);
+
+function createUser(firstName, lastName, phone, gender, email, blocked = false) {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const dbConnect = await mongoose.connect('mongodb://localhost:27017/contact', { useNewUrlParser: true });
-
-			mongoose.set('useFindAndModify', false);
-			const userSchema = new mongoose.Schema({
-				firstName: { type: String, maxlenght: 20, required: true, trim: true },
-				lastName: { type: String, maxlenght: 20, required: true, trim: true },
-				phone: { type: String, lenght: 11, required: true, trim: true },
-				gender: { type: String, enum: ['male', 'female'], required: true, trim: true },
-				email: { type: String, required: true },
-				blocked: { type: Boolean, enum: [true, false], required: true, default: 0 }
-			});
-			const User =  mongoose.model('user', userSchema);
-			resolve({dbConnect, User });
+			const user = new User({ firstName, lastName, phone, gender, email, blocked });
+			const result = await user.save();
+			resolve(result);
 		} catch (error) {
 			reject(error.message);
 		}
 	});
-}
-let dbConnect = connectToDatabase();
-async function createUser(firstName, lastName, phone, gender, email, blocked = false) {
-	let connect = await dbConnect;
-	if (connect) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const user = new User({ firstName, lastName, phone, gender, email, blocked });
-				const result = await user.save();
-				resolve(result);
-			} catch (error) {
-				reject(error.message);
-			}
-		});
-	}
 }
 function getUsers() {
 	return new Promise(async (resolve, reject) => {
@@ -163,27 +158,17 @@ function blockUser(id) {
 		}
 	});
 }
-function deleteUser(id) {
+function deleteUser(id) { 
 	return new Promise(async (resolve, reject) => {
 		try {
-			let connect = await dbConnect;
-			if (connect) {
-				let { User } = connect;
-				let result = await User.deleteOne({ _id: id });
-				resolve(result);
-			}
+			let result = await User.deleteOne({ _id: id });
+			resolve(result);
+
 		} catch (error) {
 			reject(error.message);
 		}
-	});
+	 });
 }
-user = deleteUser('5d2b15aea47488275253b117');
-user
-	.then(data => {
-		console.log(data);
-	})
-	.catch(data => {
-		console.log(data);
-	});
-
+user = deleteUser('5d2b16a561d0fb28a4f181e8');
+user.then((data) => { console.log(data) }).catch((error) => { console.log(error) });
 module.exports = { createUser, getUsers, getUsersNotBlocked, getBlockedUsers, updateUser, getSingleUser, blockUser };
