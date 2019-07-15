@@ -13,7 +13,25 @@ db.connect(error => {
 		console.log('connection successful');
 	}
 });
-
+function searchContact(search) {
+	return new Promise((resolve, reject) => {
+		try {
+			if (db) {
+				db.query(
+					"select * from users where firstName like '%" + search + "%' or lastName like '%" + search + "%' ",
+					(error, results) => {
+						if (error) reject(error);
+						resolve(results);
+					}
+				);
+			} else {
+				throw new Error('cannot connect to database at the moment');
+			}
+		} catch (error) {
+			reject(error.message);
+		}
+	});
+}
 function createUser(firstName, lastName, email, phone, gender, blocked = 0) {
 	return new Promise((resolve, reject) => {
 		try {
@@ -174,5 +192,6 @@ module.exports = {
 	getBlockedUsers,
 	updateUser,
 	blockUser,
-	deleteUser
+	deleteUser,
+	searchContact
 };
