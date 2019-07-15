@@ -118,8 +118,8 @@ userRouter.get('/nonblockedusers', (req,res) => {
 		 data.length === 0 ? res.status(200).json('no nonblocked user') : res.status(200).json(data);
 	}).catch((error) => { res.json(error) });
 });
-userRouter.delete('/', (req, res) => {
-	res.send('welcome');
+userRouter.delete('/delete/:id', (req, res) => {
+	deleteUser(req.params.id).then((data) => { res.status(200).json({deletedUser: data, id:req.params.id}) }).catch((error) => { res.json(error) });
 });
 
 module.exports = userRouter;

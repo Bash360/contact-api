@@ -23,7 +23,7 @@ function createUser(firstName, lastName, email, phone, gender, blocked = 0) {
 					[firstName, lastName, email, phone, gender, blocked],
 					(error, results) => {
 						if (error) throw error;
-						resolve({ id: results.insertId, affectedRows: results.affectedRows });
+						resolve({ contactID: results.insertId, noOfContactsCreated: results.affectedRows });
 					}
 				);
 			} else {
@@ -149,12 +149,13 @@ function blockUser(id) {
 	});
 }
 function deleteUser(id) {
-	return new Promise(async (resolve, reject) => {
+	return new Promise((resolve, reject) => {
 		try {
 			if (db) {
-				db.query('delete from users where contactID=?', [id], (error, results, f) => {
-					if (error) return reject(error.message);
-					resolve(result);
+				db.query('delete from users where contactID=?', [id], (error, result) => {
+					if (error) throw error(error.message);
+					if (result.affectedRows === 0) reject('invalid id');
+					resolve(result.affectedRows);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
