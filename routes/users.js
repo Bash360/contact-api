@@ -71,9 +71,9 @@ userRouter.get('/', (req, res) => {
 			console.error(error);
 		});
 });
-userRouter.get('api/users/?id', (req, res) => {
-	res.send(req);
-	// getSingleUser(req.query.id).then((data) => { res.status(200).json(data); }).catch((error) => { res.status(400).json(error) });
+userRouter.get('/search?', (req, res) => {
+
+	 getSingleUser(req.query.id).then((data) => { res.status(200).json(data); }).catch((error) => { res.status(400).json(error) });
 });
 userRouter.get('/blocked', (req, res) => {
 	getBlockedUsers().then((data) => { data.length === 0 ? res.status(200).json('no blocked user') : res.status(200).json(data); }).

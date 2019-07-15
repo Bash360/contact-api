@@ -56,6 +56,7 @@ function getSingleUser(id) {
 			if (db) {
 				db.query('Select * from  users where contactID=?', [id], (error, result) => {
 					if (error) throw error;
+					if (result.length === 0) reject('invalid id');
 					resolve(result);
 				});
 			} else {
