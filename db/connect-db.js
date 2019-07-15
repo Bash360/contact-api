@@ -166,7 +166,6 @@ function deleteUser(id) {
 		}
 	});
 }
-
 module.exports = {
 	createUser,
 	getAllUsers,
