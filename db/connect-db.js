@@ -41,7 +41,7 @@ function createUser(firstName, lastName, email, phone, gender, blocked = 0) {
 					[firstName, lastName, email, phone, gender, blocked],
 					(error, results) => {
 						if (error) throw error;
-						resolve({ contactID: results.insertId, noOfContactsCreated: results.affectedRows });
+						resolve(getSingleUser(results.insertId));
 					}
 				);
 			} else {
