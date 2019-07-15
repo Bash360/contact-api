@@ -3,7 +3,8 @@ const db = mysql.createConnection({
 	host: '127.0.0.1',
 	user: 'guest',
 	password: 'password666',
-	database: 'contact'
+	database: 'contact',
+	multipleStatements: true
 });
 db.connect(error => {
 	if (error) {
@@ -39,7 +40,7 @@ function getAllUsers() {
 			if (db) {
 				db.query('Select * from users', (error, results) => {
 					if (error) throw error;
-					resolve({ results });
+					resolve(results);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -53,9 +54,9 @@ function getSingleUser(id) {
 	return new Promise((resolve, reject) => {
 		try {
 			if (db) {
-				db.query('Select * from  users where contactID=?', [id], (error, results) => {
+				db.query('Select * from  users where contactID=?', [id], (error, result) => {
 					if (error) throw error;
-					resolve(results);
+					resolve(result);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -112,14 +113,12 @@ function updateUser(id, details) {
 						phone = userDetails.phone,
 						gender = userDetails.gender
 					} = details;
-					db.query(
-						'Update users set firstName=?,lastName=?,email=?,phone=?, gender=? where contactID=?',
-						[firstName, lastName, email, phone, gender, id],
-						(error, results) => {
-							if (error) throw error;
-							resolve(results);
-						}
-					);
+					let sqlQuery =
+						'Update users set firstName=?,lastName=?,email=?,phone=?, gender=? where contactID=? ; select * from users  where contactID=?';
+					db.query(sqlQuery, [firstName, lastName, email, phone, gender, id, id], (error, result) => {
+						if (error) throw error;
+						resolve(result[1]);
+					});
 				} else {
 					throw new Error('contact ID invalid');
 				}
@@ -135,9 +134,11 @@ function blockUser(id) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (db) {
-				db.query('Update users set blocked=1 where contactID=?', [id], (error, results, f) => {
+				let sqlQuery = 'Update users set blocked=1 where contactID=?; select * from users where contactID=?';
+				db.query(sqlQuery, [id, id], (error, result) => {
 					if (error) throw error;
-					resolve(results);
+					if (result[0].affectedRows === 0) reject('invalid id');
+					resolve(result[1]);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -153,7 +154,7 @@ function deleteUser(id) {
 			if (db) {
 				db.query('delete from users where contactID=?', [id], (error, results, f) => {
 					if (error) return reject(error.message);
-					resolve(results);
+					resolve(result);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');

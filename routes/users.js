@@ -1,7 +1,7 @@
 const express = require('express');
 const joi = require('@hapi/joi');
 const {
-createUser,
+	createUser,
 	getAllUsers,
 	getNonBlockedUsers,
 	getSingleUser,
@@ -14,36 +14,72 @@ const userRouter = express.Router();
 
 const postSchema = {
 	firstName: joi
-		.string()
+		.string().trim()
 		.min(3)
 		.required(),
 	lastName: joi
-		.string()
+		.string().trim().lowercase()
 		.min(3)
 		.required(),
 	email: joi
-		.string()
+		.string().trim().lowercase()
 		.email()
 		.required(),
-	phone: joi.string().max(11).required(),
+	phone: joi
+		.string().trim().lowercase()
+		.max(11)
+		.required(),
 	gender: joi
-		.string()
+		.string().trim().lowercase()
 		.max(6)
 		.min(4)
 		.required(),
-	blocked: joi.number().max(1).optional()
+	blocked: joi
+		.number()
+		.max(1)
+		.optional()
 };
-userRouter.get('/api/users', (req, res) => {
-  getAllUsers().then((data) => {  res.status(200).json(data)}).catch((error) => {  res.send(error)});
+const updateSchema = {
+	firstName: joi
+		.string().trim().lowercase()
+		.min(3)
+		.optional(),
+	lastName: joi
+		.string().trim().lowercase()
+		.min(3)
+		.optional(),
+	email: joi
+		.string().trim().lowercase()
+		.email()
+		.optional(),
+	phone: joi
+		.string().trim().lowercase()
+		.max(11)
+		.optional(),
+	gender: joi
+		.string().trim().lowercase()
+		.max(6)
+		.min(4)
+		.optional()
+};
+userRouter.get('/', (req, res) => {
+	getAllUsers()
+		.then(data => {
+			res.status(200).json(data);
+		})
+		.catch(error => {
+			console.error(error);
+		});
 });
-userRouter.get('/api/users?id', (req, res) => {
-  res.send(req);
-  // getSingleUser(req.query.id).then((data) => { res.status(200).json(data); }).catch((error) => { res.status(400).json(error) });
+userRouter.get('api/users/?id', (req, res) => {
+	res.send(req);
+	// getSingleUser(req.query.id).then((data) => { res.status(200).json(data); }).catch((error) => { res.status(400).json(error) });
 });
-userRouter.get('/api/users/blocked', (req, res) => {
-	res.send('welcome');
+userRouter.get('/blocked', (req, res) => {
+	getBlockedUsers().then((data) => { data.length === 0 ? res.status(200).json('no blocked user') : res.status(200).json(data); }).
+		catch((error) => {console.error(error) });
 });
-userRouter.post('/api/users', (req, res) => {
+userRouter.post('/', (req, res) => {
 	const validated = joi.validate(req.body, postSchema, { abortEarly: false });
 	const { error } = validated;
 	if (error) {
@@ -53,20 +89,36 @@ userRouter.post('/api/users', (req, res) => {
 		res.status(400).send(errors);
 	} else {
 		let { firstName, lastName, gender, phone, email } = req.body;
-
-		createUser(firstName, lastName, phone, gender, email)
-			.then(dbresponse => {
-				res.status(200).json(dbresponse);
+		createUser(firstName, lastName, email, phone, gender)
+			.then(data => {
+				res.status(200).json(data);
 			})
 			.catch(error => {
 				res.send(error);
 			});
 	}
 });
-userRouter.put('/api/users', (req, res) => {
-	res.send('welcome');
+userRouter.put('/update/:id', (req, res) => {
+const validated = joi.validate(req.body, updateSchema, { abortEarly: false });
+	const { error } = validated;
+	if (error) {
+		let errors = error.details.reduce((errors, error) => {
+			return errors + ' \n' + error.message;
+		}, ' ');
+		return res.status(400).send(errors);
+	} else { 
+		updateUser(req.params.id, req.body).then((data) => { res.status(200).json(data)}).catch((error)=>{res.json(error)});
+	} 
 });
-userRouter.delete('/api/users', (req, res) => {
+userRouter.put('/block/:id', (req, res) => {
+	blockUser(req.params.id).then((data) => { res.status(200).json(data) }).catch((error) => { res.json(error) });
+});
+userRouter.get('/nonblockedusers', (req,res) => { 
+	getNonBlockedUsers().then((data) => { 
+		 data.length === 0 ? res.status(200).json('no nonblocked user') : res.status(200).json(data);
+	}).catch((error) => { res.json(error) });
+});
+userRouter.delete('/', (req, res) => {
 	res.send('welcome');
 });
 
