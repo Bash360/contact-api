@@ -60,5 +60,17 @@ describe('Test for contact API', () => {
     });
     done();
    });
-	 it('',()=>{});
+	 it('localhost:500/api/users/blocked returns with a response of 200 and a response body of blocked user',async (done)=>{
+		 const response=await request(app);
+		 expect(response.body).toContainEqual({
+			firstName: expect.any(String),
+			lastName: expect.any(String),
+			email: expect.any(String),
+			contactID: expect.any(Number),
+			phone: expect.any(String),
+			gender: expect.any(String),
+			blocked: expect.any(Number)
+		});
+
+	 });
 });

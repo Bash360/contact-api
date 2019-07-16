@@ -101,7 +101,7 @@ userRouter.get('/', (req, res) => {
 userRouter.get('/search?', (req, res) => {
 	let { error } = joi.validate(req.query, searcSchema);
 	if (!error) {
-			searchContact(req.query.q)
+		searchContact(req.query.q)
 			.then(data => {
 				res.status(200).json(data);
 			})
@@ -195,6 +195,5 @@ userRouter.delete('/delete/:id', (req, res) => {
 			res.json(error);
 		});
 });
-
 
 module.exports = userRouter;
