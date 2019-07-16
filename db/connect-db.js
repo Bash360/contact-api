@@ -80,7 +80,7 @@ function getSingleUser(id) {
 				db.query('Select * from  users where contactID=?', [id], (error, result) => {
 					if (error) throw error;
 					if (result.length === 0) reject('invalid id');
-					resolve(result);
+					resolve(...result);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');

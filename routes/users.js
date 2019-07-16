@@ -112,16 +112,6 @@ userRouter.get('/search?', (req, res) => {
 		res.status(400).json(error[0]);
 	}
 });
-userRouter.get('/:id', (req, res) => {
-	getSingleUser(req.params.id)
-		.then(data => {
-			res.status(200).json(data);
-		})
-		.catch(error => {
-			res.status(400).json(error);
-		});
-});
-
 userRouter.get('/blocked', (req, res) => {
 	getBlockedUsers()
 		.then(data => {
@@ -131,6 +121,9 @@ userRouter.get('/blocked', (req, res) => {
 			console.error(error);
 		});
 });
+
+
+
 userRouter.post('/', (req, res) => {
 	const validated = joi.validate(req.body, postSchema, { abortEarly: false });
 	const { error } = validated;
@@ -168,15 +161,6 @@ userRouter.put('/update/:id', (req, res) => {
 			});
 	}
 });
-userRouter.put('/block/:id', (req, res) => {
-	blockUser(req.params.id)
-		.then(data => {
-			res.status(200).json(data);
-		})
-		.catch(error => {
-			res.json(error);
-		});
-});
 userRouter.get('/nonblockedusers', (req, res) => {
 	getNonBlockedUsers()
 		.then(data => {
@@ -186,6 +170,16 @@ userRouter.get('/nonblockedusers', (req, res) => {
 			res.json(error);
 		});
 });
+userRouter.put('/block/:id', (req, res) => {
+	blockUser(req.params.id)
+		.then(data => {
+			res.status(200).json(data);
+		})
+		.catch(error => {
+			res.json(error);
+		});
+});
+
 userRouter.delete('/delete/:id', (req, res) => {
 	deleteUser(req.params.id)
 		.then(data => {
@@ -195,5 +189,13 @@ userRouter.delete('/delete/:id', (req, res) => {
 			res.json(error);
 		});
 });
-
+userRouter.get('/:id', (req, res) => {
+	getSingleUser(req.params.id)
+		.then(data => {
+			res.status(200).json(data);
+		})
+		.catch(error => {
+			res.status(400).json(error);
+		});
+});
 module.exports = userRouter;

@@ -60,8 +60,8 @@ describe('Test for contact API', () => {
     });
     done();
    });
-	 it('localhost:500/api/users/blocked returns with a response of 200 and a response body of blocked user',async (done)=>{
-		 const response=await request(app);
+	 it('localhost:500/api/users/blocked returns with a response of 200 and a response body of blocked user',async(done)=>{
+		 const response=await request(app).get('/api/users/blocked');
 		 expect(response.body).toContainEqual({
 			firstName: expect.any(String),
 			lastName: expect.any(String),
@@ -71,6 +71,64 @@ describe('Test for contact API', () => {
 			gender: expect.any(String),
 			blocked: expect.any(Number)
 		});
+		done();
 
 	 });
+	 it.skip('localhost:500/api/users/nonblockedusers returns with a response of 200 and a response body of blocked user',async (done)=>{
+		 const response= await request(app).get('/api/users/nonblockedusers');
+		 expect(response.body).toContainEqual({
+			firstName: expect.any(String),
+			lastName: expect.any(String),
+			email: expect.any(String),
+			contactID: expect.any(Number),
+			phone: expect.any(String),
+			gender: expect.any(String),
+			blocked: expect.any(Number)
+		});
+		done();
+	 });
+	 it('localhost:500/api/users/update/id returns with a response of 200 and a response body of blocked user',async (done)=>{
+		 const response= await request(app).put('/api/users/update/4').send({
+				firstName: 'chibuzor',
+				lastName: 'kweke',
+				email: 'chi@testmail.com',
+				phone: '08036960577',
+				gender: 'female'
+			});
+		 expect(response.body).toContainEqual({
+			firstName: 'chibuzor',
+			lastName: 'kweke',
+			email: 'chi@testmail.com',
+			contactID: 4,
+			phone: '08036960577',
+			gender: 'female',
+			blocked: expect.any(Number)
+		});
+		done();
+	 });
+	 it.skip(' deletes contacts with the endpoint localhost:5000/api/users/delete/id and sends a response of 200 and number of users deleted  ',async (done)=>{
+const response= await request(app).delete('/api/users/delete/21');
+   expect(response.status).toBe(200);
+	 expect(response.body).toMatchObject({
+		 "deletedUser":1,
+		 "id":"21"
+	 });
+
+done();
+	 });
+	 it('gets a particular user with the given id with the endpoint localhost:5000/api/users/id ',async (done)=>{
+   const response = await request(app).get('/api/users/4');
+	 expect(response.status).toBe(200);
+	 expect(response.body).toMatchObject({
+		 	firstName: expect.any(String),
+			lastName: expect.any(String),
+			email: expect.any(String),
+			phone: expect.any(String),
+			gender: expect.any(String),
+			contactID: expect.any(Number),
+			blocked: expect.any(Number)
+	 });
+	 done();
+	 });
 });
+
