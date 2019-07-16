@@ -51,13 +51,14 @@ describe('Test for contact API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
 			firstName: expect.any(String),
-			lastName: expect.any(Number),
+			lastName: expect.any(String),
 			email: expect.any(String),
 			phone: expect.any(String),
 			gender: expect.any(String),
-			contactID: 4,
+			contactID: expect.any(Number),
 			blocked: 1
     });
     done();
    });
+	 it('',()=>{});
 });
