@@ -6,15 +6,20 @@ const db = mysql.createConnection({
 	database: 'contact',
 	multipleStatements: true
 });
-db.connect(error => {
+try {
+	db.connect(error => {
 	if (error) {
-		console.log(error.message);
+		throw error;
 	} else {
 		console.log('connection successful');
 	}
 });
+} catch (error) {
+	console.error(error.message);	
+}
+
 function searchContact(search) {
-	return new Promise((resolve, reject) => {
+	return new Promise(async (resolve, reject) => {
 		try {
 			if (db) {
 				db.query(
@@ -157,7 +162,7 @@ function blockUser(id) {
 				db.query(sqlQuery, [id, id], (error, result) => {
 					if (error) throw error;
 					if (result[0].affectedRows === 0) reject('invalid id');
-					resolve(result[1]);
+					resolve(...result[1]);
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -184,6 +189,7 @@ function deleteUser(id) {
 		}
 	});
 }
+
 module.exports = {
 	createUser,
 	getAllUsers,
