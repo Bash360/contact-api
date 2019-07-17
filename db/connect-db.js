@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
-
-mongoose
+try {
+	mongoose
 	.connect('mongodb://localhost:27017/contact', { useNewUrlParser: true })
 	.then(() => {
 		console.log('connected to mongo db');
@@ -10,6 +10,11 @@ mongoose
 		console.error(error.message);
 	});
 mongoose.set('useFindAndModify', false);
+} catch (error) {
+	console.error(error.message);
+}
+
+
 const userSchema = new mongoose.Schema({
 	firstName: { type: String, maxlenght: 20, required: true, trim: true },
 	lastName: { type: String, maxlenght: 20, required: true, trim: true },
@@ -169,5 +174,8 @@ function deleteUser(id) {
 		}
 	 });
 }
+
+user = deleteUser("5d2b77ec4a932f5f132ea3ea");
+user.then(data=>console.log(data));
 
 module.exports = { createUser, getUsers, getUsersNotBlocked, getBlockedUsers, updateUser, getSingleUser, blockUser };
