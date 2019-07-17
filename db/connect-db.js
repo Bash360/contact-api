@@ -18,7 +18,7 @@ try {
 	console.error(error.message);	
 }
 
-function searchContact(search) {
+ function  searchContact(search) {
 	return new Promise(async (resolve, reject) => {
 		try {
 			if (db) {
