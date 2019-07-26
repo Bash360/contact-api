@@ -80,7 +80,20 @@ function getSingleUser(id) {
 				db.query('Select * from  users where contactID=?', [id], (error, result) => {
 					if (error) throw error;
 					if (result.length === 0) reject('invalid id');
-					resolve(...result);
+					let { firstName,
+						lastName,
+						email,
+						contactID,
+						phone,
+						gender,
+						blocked } = result[0];
+					resolve({ firstName,
+						lastName,
+						email,
+						contactID,
+						phone,
+						gender,
+						blocked } );
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -127,9 +140,9 @@ function updateUser(id, details) {
 		try {
 			if (db) {
 				let user = await getSingleUser(id);
-
-				if (user.length != 0) {
-					let userDetails = user[0];
+				
+				if (user!=='invalid id') {
+					let userDetails = user;
 					let {
 						firstName = userDetails.firstName,
 						lastName = userDetails.lastName,
@@ -189,7 +202,8 @@ function deleteUser(id) {
 		}
 	});
 }
-
+user = updateUser(5,{firstName:"bashir"});
+user.then((data) => { console.log(data) }).catch((data) => { console.log(data) });
 module.exports = {
 	createUser,
 	getAllUsers,
