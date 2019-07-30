@@ -61,9 +61,13 @@ function getAllUsers() {
 	return new Promise((resolve, reject) => {
 		try {
 			if (db) {
-				db.query('Select * from users', (error, results) => {
+				db.query('Select * from users order by firstName,lastName', (error, results) => {
 					if (error) throw error;
-					resolve(results);
+					if (results.length === 0) {
+						reject("contact empty");
+					} else { 
+						resolve(results);
+					}
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -80,14 +84,14 @@ function getSingleUser(id) {
 				db.query('Select * from  users where contactID=?', [id], (error, result) => {
 					if (error) throw error;
 					if (result.length === 0) reject('invalid id');
-					let { firstName,
+					let {imageUrl, firstName,
 						lastName,
 						email,
 						contactID,
 						phone,
 						gender,
 						blocked } = result[0];
-					resolve({ firstName,
+					resolve({ imageUrl,firstName,
 						lastName,
 						email,
 						contactID,
@@ -154,7 +158,8 @@ function updateUser(id, details) {
 						'Update users set firstName=?,lastName=?,email=?,phone=?, gender=? where contactID=? ; select * from users  where contactID=?';
 					db.query(sqlQuery, [firstName, lastName, email, phone, gender, id, id], (error, result) => {
 						if (error) throw error;
-						resolve(result[1]);
+						let { firstName, lastName, email, gender, phone, blocked, contactID } = result[1][0];
+						resolve({firstName,lastName,email,gender,phone,blocked,contactID });
 					});
 				} else {
 					throw new Error('contact ID invalid');
@@ -192,7 +197,7 @@ function deleteUser(id) {
 				db.query('delete from users where contactID=?', [id], (error, result) => {
 					if (error) throw error(error.message);
 					if (result.affectedRows === 0) reject('invalid id');
-					resolve(result.affectedRows);
+					resolve({message:"user deleted successfully","usersAffected":result.affectedRows});
 				});
 			} else {
 				throw new Error('cannot connect to database at the moment');
@@ -202,8 +207,8 @@ function deleteUser(id) {
 		}
 	});
 }
-user = updateUser(5,{firstName:"bashir"});
-user.then((data) => { console.log(data) }).catch((data) => { console.log(data) });
+
+
 module.exports = {
 	createUser,
 	getAllUsers,
